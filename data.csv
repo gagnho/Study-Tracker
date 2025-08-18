@@ -1,5 +1,4 @@
-try:
-    df = pd.read_csv("data.csv")
-except FileNotFoundError:
-    df = pd.DataFrame(columns=["date", "study_hours", "stress_level", "sleep_hours", "exercise_minutes"])
-    df.to_csv("data.csv", index=False)
+date,study_hours,stress_level,sleep_hours,exercise_minutes
+2025-08-16,8,5,7,30
+2025-08-17,6,6,6,45
+2025-08-18,7,4,8,20
