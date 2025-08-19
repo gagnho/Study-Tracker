@@ -4,6 +4,7 @@ import numpy as np
 import os
 import random
 import datetime
+import matplotlib.pyplot as plt  # Importing matplotlib for plotting
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
@@ -130,8 +131,8 @@ with tab4:
         c.drawString(100, 730, f"Data Entries: {len(df)}")
         
         # Add graph (save fig and draw)
-        plt.figure()
         df['date'] = pd.to_datetime(df['date'])  # Ensure date is in datetime format
+        plt.figure()
         df.plot(x='date', y='stress_level')
         plt.savefig("stress.png")
         plt.close()  # Close the plot to avoid display
