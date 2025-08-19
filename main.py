@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
+import random
+import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import plotly.express as px
+from transformers import pipeline
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 # Load or initialize data
 DATA_FILE = 'data.csv'
@@ -23,9 +29,9 @@ st.title("🧠 AI-Powered Study & Wellness Tracker for Olympiad Students")
 st.subheader("Aligned with SDG 3: Good Health & Well-Being | SDG 4: Quality Education")
 col1, col2 = st.columns(2)
 with col1:
-    st.image("sdg3.png", width=100) if 'sdg3.png' in [f for f in os.listdir()] else st.write("SDG 3 Icon")
+    st.image("sdg3.png", width=100) if 'sdg3.png' in os.listdir() else st.write("SDG 3 Icon")
 with col2:
-    st.image("sdg4.png", width=100) if 'sdg4.png' in [f for f in os.listdir()] else st.write("SDG 4 Icon")
+    st.image("sdg4.png", width=100) if 'sdg4.png' in os.listdir() else st.write("SDG 4 Icon")
 
 st.write("Welcome! Track your habits, get AI insights, and personalized Olympiad plans. Reduce stress, boost performance.")
 
@@ -46,7 +52,7 @@ with tab1:
         submitted = st.form_submit_button("Submit")
         if submitted:
             new_data = pd.DataFrame({
-                'date': [datetime.date.today()],
+                'date': [datetime.date.today().strftime('%Y-%m-%d')],
                 'study_hours': [study_hours],
                 'stress_level': [stress_level],
                 'sleep_hours': [sleep_hours],
@@ -107,10 +113,13 @@ with tab3:
         
         st.text_area("Your Plan", plan, height=300)
         
-        # Progress tracker (dummy for now)
-        progress = (datetime.date.today() - df['date'].min()).days / days_left * 100 if days_left else 0
-        st.progress(min(progress/100, 1.0))
-        st.write(f"Progress: {progress:.1f}%")
+        # Progress tracker
+        if len(df) > 0:
+            progress = (datetime.date.today() - pd.to_datetime(df['date']).min()).days / days_left * 100
+            st.progress(min(progress / 100, 1.0))
+            st.write(f"Progress: {progress:.1f}%")
+        else:
+            st.write("No data available for progress tracking.")
 
 with tab4:
     st.header("Export Report as PDF")
@@ -119,10 +128,13 @@ with tab4:
         c = canvas.Canvas(pdf_file, pagesize=letter)
         c.drawString(100, 750, "AI Study & Wellness Report")
         c.drawString(100, 730, f"Data Entries: {len(df)}")
+        
         # Add graph (save fig and draw)
         plt.figure()
+        df['date'] = pd.to_datetime(df['date'])  # Ensure date is in datetime format
         df.plot(x='date', y='stress_level')
         plt.savefig("stress.png")
+        plt.close()  # Close the plot to avoid display
         c.drawImage("stress.png", 100, 500, width=400, height=200)
         c.save()
         st.download_button("Download PDF", data=open(pdf_file, 'rb'), file_name=pdf_file)
