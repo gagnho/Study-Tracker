@@ -130,13 +130,12 @@ with tab4:
         c.drawString(100, 750, "AI Study & Wellness Report")
         c.drawString(100, 730, f"Data Entries: {len(df)}")
         
-        # Add graph (save fig and draw)
-        df['date'] = pd.to_datetime(df['date'])  # Ensure date is in datetime format
-        plt.figure()
-        df.plot(x='date', y='stress_level')
-        plt.savefig("stress.png")
-        plt.close()  # Close the plot to avoid display
+        # Create a Plotly figure for the stress level graph
+        fig = px.line(df, x='date', y='stress_level', title='Stress Over Time')
+        fig.write_image("stress.png")  # Save the figure as an image
+        
         c.drawImage("stress.png", 100, 500, width=400, height=200)
         c.save()
         st.download_button("Download PDF", data=open(pdf_file, 'rb'), file_name=pdf_file)
         st.success("PDF ready!")
+
